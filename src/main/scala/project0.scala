@@ -47,6 +47,7 @@ object project0 {
     }
 
     def scenario6() : Unit = {
+      println("This is my future query")
 
     }
 
@@ -62,7 +63,7 @@ object project0 {
     var quit = false
     while(quit == false){
 
-      println("Press 1, 2, 3, 4, 5, 6, 7, or 8")
+      println("Choose scenario 1, 2, 3, 4, 5, 6, 7, or 8")
       val i = scanner.nextInt()
       i match {
         case 1 => scenario1()
@@ -70,6 +71,7 @@ object project0 {
         case 3 => scenario3()
         case 4 => scenario4()
         case 5 => scenario5()
+        case 6 => scenario6()
         case 7 => scenarioDrop()
         case 8 => quit = true
 
