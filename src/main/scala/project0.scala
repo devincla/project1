@@ -62,7 +62,7 @@ object project0 {
     var quit = false
     while(quit == false){
 
-      println("Press 1, 2, 3, 7, or 8")
+      println("Press 1, 2, 3, 4, 5, 6, 7, or 8")
       val i = scanner.nextInt()
       i match {
         case 1 => scenario1()
