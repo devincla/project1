@@ -19,9 +19,11 @@ object project0 {
 
     def scenario1() : Unit = {
       println("Selecting total number of consumers on Branch 1..")
-      spark.sql("SELECT COUNT(*) FROM Branches WHERE branch = 'Branch1'").show()
+      //spark.sql("SELECT COUNT(*) FROM Branches WHERE branch = 'Branch1'").show()
+      spark.sql("SELECT Branches.branch, sum(Conscounts.count) AS consumers FROM Conscounts INNER JOIN Branches ON Branches.bev = Conscounts.bev WHERE Branches.branch = 'Branch1' GROUP BY Branches.branch").show()
       println("Selecting total number of consumers on Branch 2...")
-      spark.sql("SELECT COUNT(*) FROM Branches WHERE branch = 'Branch2'").show()
+      spark.sql("SELECT Branches.branch, sum(Conscounts.count) AS consumers FROM Conscounts INNER JOIN Branches ON Branches.bev = Conscounts.bev WHERE Branches.branch = 'Branch2' GROUP BY Branches.branch").show()
+      //spark.sql("SELECT COUNT(*) FROM Branches WHERE branch = 'Branch2'").show()
     }
     def scenario2() : Unit = {
 
