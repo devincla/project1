@@ -41,7 +41,8 @@ object project0 {
       println("Selecting all beverages available in branches 1, 8, and 10...")
       spark.sql("SELECT DISTINCT bev FROM Branches WHERE branch IN ('Branch1', 'Branch8', 'Branch10') ORDER BY bev ASC").show(50)
       println("Selecting all beverages common to branches 4 and 7...")
-      spark.sql("SELECT DISTINCT t1.bev\nFROM Branches t1\nINNER JOIN Branches t2\non t1.bev = t2.bev\nWHERE t1.branch = 'Branch3'\nAND t2.branch = 'Branch7' ORDER BY bev ASC").show(50)
+      spark.sql("SELECT bev FROM Branches where branch = 'Branch4' INTERSECT SELECT bev from Branches where branch = 'Branch7'").show()
+      //spark.sql("SELECT DISTINCT t1.bev\nFROM Branches t1\nINNER JOIN Branches t2\non t1.bev = t2.bev\nWHERE t1.branch = 'Branch3'\nAND t2.branch = 'Branch7' ORDER BY bev ASC").show(50)
 
     }
 
@@ -118,7 +119,7 @@ object project0 {
     var quit = false
     while(quit == false){
 
-      println("\n\nChoose scenario: \n1) (Total consumers)\n2) (Most, least, average)\n3) (Common Bevs) \n4) (Partition) \n" +
+      println("\n\nChoose scenario: \n1) (Total consumers for Branch 1 & Branch 2)\n2) (Most, least, average)\n3) (All Bevs on Branches 1, 8, and 10 / Common Bevs between 7 & 4) \n4) (Partition) \n" +
         "5) (Note and Remove) \n6) (Future Query) \n7) (Drop Tables)\n8) (Quit Program)")
       val i = scanner.nextInt()
       i match {
