@@ -25,7 +25,9 @@ object project0 {
 
       spark.sql("SELECT Branches.bev, sum(Conscounts.count) AS sales FROM Conscounts INNER JOIN Branches ON Branches.bev = Conscounts.bev WHERE Branches.branch = 'Branch1' GROUP BY Branches.bev ORDER BY sales DESC LIMIT 1").show()
       spark.sql("SELECT Branches.bev, sum(Conscounts.count) AS sales FROM Conscounts INNER JOIN Branches ON Branches.bev = Conscounts.bev WHERE Branches.branch = 'Branch2' GROUP BY Branches.bev ORDER BY sales ASC LIMIT 1").show()
-      spark.sql("SELECT * FROM Branches ORDER BY bev LIMIT 1").show()
+      val df = spark.sql("SELECT Branches.bev, sum(Conscounts.count) AS sales FROM Conscounts INNER JOIN Branches ON Branches.bev = Conscounts.bev WHERE Branches.branch = 'Branch1' GROUP BY Branches.bev ORDER BY sales DESC")
+      val medianDf = df.stat.approxQuantile("sales", Array(0.5), 0.25)
+      println("The average beverage on Branch 2 is " + medianDf(0))
 
     }
 
@@ -37,23 +39,56 @@ object project0 {
     }
 
     def scenario4() : Unit = {
-      spark.sql("CREATE TABLE IF NOT EXISTS BranchesCopy (bev STRING) PARTITIONED BY row format delimited fields terminated by ','")
-      spark.sql("LOAD DATA LOCAL INPATH 'input/Bev_Branch.txt' INTO TABLE BranchesCopy")
-
+      println("\nCreating a table with partitions on branches 1 & 8...\n")
+      //spark.sql("CREATE TABLE IF NOT EXISTS partitionBranches (bev STRING) PARTITIONED BY (branch STRING) row format delimited fields terminated by ','")
+      //spark.sql("LOAD DATA LOCAL INPATH 'input/Bev_Branch.txt' INTO TABLE partitionBranches PARTITION(branch='Branch8')")
+      //spark.sql("LOAD DATA LOCAL INPATH 'input/Bev_Branch.txt' INTO TABLE partitionBranches PARTITION(branch='Branch1')")
+      spark.sql("DESCRIBE FORMATTED partitionBranches").show()
+      spark.sql("SELECT * FROM partitionBranches").show()
     }
 
     def scenario5() : Unit = {
+      //spark.sql("DROP TABLE noteTable")
+      println("\nCreating table...\n")
+      spark.sql("CREATE TABLE IF NOT EXISTS noteTable (bev STRING, branch STRING) row format delimited fields terminated by ','")
+      //println("\nLoading data into table...\n")
+      //spark.sql("LOAD DATA LOCAL INPATH 'input/Bev_Branch.txt' INTO TABLE noteTable")
+      println("\nAdding table note...\n")
+      spark.sql("ALTER TABLE noteTable SET TBLPROPERTIES('notes' = 'This is a note')")
+      spark.sql("SHOW TBLPROPERTIES noteTable").show()
+//      println("\nDeleting row from table...\n")
+//      spark.sql("ALTER TABLE partitionbranches DROP IF EXISTS PARTITION(branch='Branch1')")
+
 
     }
 
     def scenario6() : Unit = {
       println("This is my future query")
+      //spark.sql("DROP TABLE bevSales")
+//      println("\nCreating table...\n")
+      spark.sql("CREATE TABLE IF NOT EXISTS bevSales (bev STRING, sales BIGINT, modifier STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','")
+//      println("\nLoading data into table...\n")
+      //spark.sql("LOAD DATA LOCAL INPATH 'input/bevSalestxt.txt' INTO TABLE bevSales")
+      println("\nOrganizing beverages by modifier popularity..\n")
+      spark.sql("select sum(sales) as totalSales from bevSales where bev like '%cold%' union " +
+        "select sum(sales) as totalSales from bevSales where bev like '%double%' union " +
+        "select sum(sales) as totalSales from bevSales where bev like '%icy%' union " +
+        "select sum(sales) as totalSales from bevSales where bev like '%large%' union " +
+        "select sum(sales) as totalSales from bevSales where bev like '%med%' union " +
+        "select sum(sales) as totalSales from bevSales where bev like '%mild%' union " +
+        "select sum(sales) as totalSales from bevSales where bev like '%small%' union " +
+        "select sum(sales) as totalSales from bevSales where bev like '%triple%' union " +
+        "select sum(sales) as totalSales from bevSales where bev like '%special%' order by totalSales desc").show()
 
     }
 
     def scenarioDrop() : Unit = {
       spark.sql("DROP TABLE Branches")
       spark.sql("DROP TABLE Conscounts")
+      spark.sql("DROP TABLE newone1")
+      spark.sql("DROP TABLE partitionbranches")
+      spark.sql("DROP TABLE noteTable")
+      spark.sql("DROP TABLE bevSales")
     }
 //
 //    spark.sql("CREATE TABLE IF NOT EXISTS Branches (bev STRING, branch STRING) row format delimited fields terminated by ','")
@@ -63,7 +98,7 @@ object project0 {
     var quit = false
     while(quit == false){
 
-      println("Choose scenario 1, 2, 3, 4, 5, 6, 7, or 8")
+      println("\n\nChoose scenario: \n1 (Select)\n2 (Most, least, average)\n3 (Common Bevs) \n4 (Partition) \n5 (Note and Remove) \n6 (Future Query) \n7 (Drop Tables)\n8 (Quit Program)")
       val i = scanner.nextInt()
       i match {
         case 1 => scenario1()
